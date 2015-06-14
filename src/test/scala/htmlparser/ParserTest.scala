@@ -3,18 +3,18 @@ package htmlparser
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers.{be, convertToAnyShouldWrapper}
 
-class Parser$Test extends FlatSpec {
+class ParserTest extends FlatSpec {
 
   val sampleHTML =
     """
       |<html>
-      | <head>
-      |  <title>First HTML Page</title>
-      | </head>
-      | <body>
-      |  <p id="header">Hello World!</p>
-      |  <div id="content"><p class="para">from Indix.</p></div>
-      | </body>
+      |<head>
+      |<title>First HTML Page</title>
+      |</head>
+      |<body>
+      |<p id="header">Hello World!</p>
+      |<div id="content"><p class="para">from Indix.</p></div>
+      |</body>
       |</html>
     """.stripMargin
 
@@ -25,6 +25,17 @@ class Parser$Test extends FlatSpec {
       """.stripMargin
 
     val node = Node("p", "Hello World!", Map(), Nil)
+    val document = Parser.parse(html)
+    document should be(DOM(List(node)))
+    document.text should be("Hello World!")
+  }
+
+  it should "parse a tag with attributes" in {
+    val html =
+      """
+        |<p class="para">Hello World!</p>
+      """.stripMargin
+    val node = Node("p", "Hello World!", Map("class" -> "para"), Nil)
     val document = Parser.parse(html)
     document should be(DOM(List(node)))
     document.text should be("Hello World!")
@@ -73,6 +84,21 @@ class Parser$Test extends FlatSpec {
     val parent = Node("div", "", Map(), List(child1, child2))
     val document = Parser.parse(html)
     document should be(DOM(List(parent)))
+    document.text should be("Hello World! from Indix.")
+  }
+
+  it should "parse the sample html" in {
+    val document = Parser.parse(sampleHTML)
+    val title = Node("title", "First HTML Page", Map(), Nil)
+    val head = Node("head", "", Map(), List(title))
+
+    val p = Node("p", "Hello World!", Map("id" -> "header"), Nil)
+    val pInsideDiv = Node("p", "from Indix.", Map("class" -> "para"), Nil)
+    val div = Node("div", "", Map("id" -> "content"), List(pInsideDiv))
+
+    val body = Node("body", "", Map(), List(p, div))
+    val html = Node("html", "", Map(), List(head, body))
+    document should be(DOM(List(html)))
     document.text should be("Hello World! from Indix.")
   }
 
