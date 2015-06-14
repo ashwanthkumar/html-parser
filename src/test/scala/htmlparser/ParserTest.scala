@@ -26,7 +26,7 @@ class ParserTest extends FlatSpec {
 
     val node = Node("p", "Hello World!", Map(), Nil)
     val document = Parser.parse(html)
-    document should be(DOM(List(node)))
+    document should be(DOM(node))
     document.text should be("Hello World!")
   }
 
@@ -37,7 +37,7 @@ class ParserTest extends FlatSpec {
       """.stripMargin
     val node = Node("p", "Hello World!", Map("class" -> "para"), Nil)
     val document = Parser.parse(html)
-    document should be(DOM(List(node)))
+    document should be(DOM(node))
     document.text should be("Hello World!")
   }
 
@@ -51,7 +51,7 @@ class ParserTest extends FlatSpec {
     val node1 = Node("p", "Hello World!", Map(), Nil)
     val node2 = Node("span", "from Indix.", Map(), Nil)
     val document = Parser.parse(html)
-    document should be(DOM(List(node1, node2)))
+    document should be(DOM(node1, node2))
     document.text should be("Hello World! from Indix.")
   }
 
@@ -66,7 +66,7 @@ class ParserTest extends FlatSpec {
     val child = Node("p", "Hello World!", Map(), Nil)
     val parent = Node("div", "", Map(), List(child))
     val document = Parser.parse(html)
-    document should be(DOM(List(parent)))
+    document should be(DOM(parent))
     document.text should be("Hello World!")
   }
 
@@ -83,7 +83,7 @@ class ParserTest extends FlatSpec {
     val child2 = Node("span", "from Indix.", Map(), Nil)
     val parent = Node("div", "", Map(), List(child1, child2))
     val document = Parser.parse(html)
-    document should be(DOM(List(parent)))
+    document should be(DOM(parent))
     document.text should be("Hello World! from Indix.")
   }
 
@@ -98,7 +98,7 @@ class ParserTest extends FlatSpec {
 
     val body = Node("body", "", Map(), List(p, div))
     val html = Node("html", "", Map(), List(head, body))
-    document should be(DOM(List(html)))
+    document should be(DOM(html))
     document.text should be("Hello World! from Indix.")
   }
 

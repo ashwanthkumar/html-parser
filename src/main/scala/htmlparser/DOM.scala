@@ -23,4 +23,6 @@ case class DOM(nodes: List[Node]) {
 
 object DOM {
   val TEXT_BLACKLISTED_TAGS = List("title", "script", "link", "frame", "frameset", "iframe")
+
+  def apply(nodes: Node*): DOM = DOM(nodes.toList)
 }
