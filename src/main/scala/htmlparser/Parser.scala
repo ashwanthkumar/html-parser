@@ -20,12 +20,16 @@ object HTMLParser extends RegexParsers {
 
   def CLOSE = literal("</") ~> NAME <~ literal(">")
 
-  def TEXT = regex("[a-zA-Z0-9.!|@#$%^&*()_+={}\\[\\]\\ ]".r)
+  def TEXT = regex("[a-zA-Z0-9.!|@#$%^&*()_+={}\\[\\]\\ ]".r).*
 
-  def TAG = START ~ TEXT.* <~ CLOSE map { case tag ~ text => Node(tag, text.mkString, Map(), Nil)}
+  def TAG: HTMLParser.Parser[List[Node]] = NESTED_TAGS | SINGLE_TAG
+
+  def NESTED_TAGS: HTMLParser.Parser[List[Node]] = START ~ TAG.+ <~ CLOSE map { case tag ~ children => List(Node(tag, "", Map(), children.flatten))}
+
+  def SINGLE_TAG: HTMLParser.Parser[List[Node]] = START ~ TEXT <~ CLOSE map { case tag ~ text => List(Node(tag, text.mkString, Map(), Nil))}
 
   def parse(html: String): List[Node] = parse(TAG.*, html) match {
-    case Success(nodes, _) => nodes
+    case Success(nodes, _) => nodes.flatten
     case Failure(msg, next) =>
       val error = next.source.toString.substring(next.offset)
       throw new RuntimeException(msg + error)
