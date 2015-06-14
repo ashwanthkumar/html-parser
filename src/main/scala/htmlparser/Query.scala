@@ -49,9 +49,11 @@ object QueryParser extends RegexParsers {
 
   def RELATIONAL_QUERY = DIRECT_QUERY ~ literal(">") ~ DIRECT_QUERY ^^ { case parent ~ _ ~ child => ParentChildRelation(parent, child)}
 
+  def NESTED_RELATIONAL_QUERY = RELATIONAL_QUERY ~ literal(">") ~ DIRECT_QUERY ^^ { case parent ~ _ ~ child => ParentChildRelation(parent, child)}
+
   def DIRECT_QUERY = ATTRIBUTE | TAG_WITH_ATTRIBUTES | TAG_NAME
 
-  def QUERY: QueryParser.Parser[Query] = RELATIONAL_QUERY | DIRECT_QUERY
+  def QUERY: QueryParser.Parser[Query] = NESTED_RELATIONAL_QUERY | RELATIONAL_QUERY | DIRECT_QUERY
 
   def parse(query: String): Query = parse(QUERY, query) match {
     case Success(result, _) => result
