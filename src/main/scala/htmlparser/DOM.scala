@@ -25,7 +25,7 @@ case class DOM(nodes: List[Node]) {
     find(query)(None, nodes).map(_.text).mkString(" ").trim
   }
 
-  final def find(query: Query)(parent: Option[Node], nodes: List[Node]): List[Node] = nodes match {
+  private final def find(query: Query)(parent: Option[Node], nodes: List[Node]): List[Node] = nodes match {
     case Nil => Nil
     case node :: rest if query.matches(parent, node) => List(node) ++ find(query)(Some(node), node.children) ++ find(query)(parent, rest)
     case node :: rest => find(query)(Some(node), node.children) ++ find(query)(parent, rest)
