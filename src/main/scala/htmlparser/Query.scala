@@ -22,7 +22,11 @@ case class Attributes(attributes: Map[String, String]) extends Query {
 
 case class ParentChildRelation(parent: Query, child: Query) extends Query {
   override def matches(parent: Option[Node], node: Node): Boolean = {
-    parent.exists(this.parent.matches) && child.matches(node)
+    val parentMatches = parent.exists(this.parent.matches)
+    child match {
+      case ParentChildRelation(me, grandChildrenQuery) => parentMatches && me.matches(node) && node.children.exists(grandChild => grandChildrenQuery.matches(Some(node), grandChild))
+      case _ => parentMatches && child.matches(node)
+    }
   }
 }
 
@@ -49,7 +53,7 @@ object QueryParser extends RegexParsers {
 
   def RELATIONAL_QUERY = DIRECT_QUERY ~ literal(">") ~ DIRECT_QUERY ^^ { case parent ~ _ ~ child => ParentChildRelation(parent, child)}
 
-  def NESTED_RELATIONAL_QUERY = RELATIONAL_QUERY ~ literal(">") ~ DIRECT_QUERY ^^ { case parent ~ _ ~ child => ParentChildRelation(parent, child)}
+  def NESTED_RELATIONAL_QUERY = DIRECT_QUERY ~ literal(">") ~ RELATIONAL_QUERY ^^ { case parent ~ _ ~ child => ParentChildRelation(parent, child)}
 
   def DIRECT_QUERY = ATTRIBUTE | TAG_WITH_ATTRIBUTES | TAG_NAME
 

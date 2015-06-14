@@ -17,7 +17,7 @@ class DOMTest extends FlatSpec {
       |</html>
     """.stripMargin
 
-  it should "parse and get the text for sampleHTML" in {
+  "DOM" should "parse and get the text for sampleHTML" in {
     HTMLParser.parse(sampleHTML).text should be("Hello World! from Indix.")
   }
 
@@ -39,6 +39,10 @@ class DOMTest extends FlatSpec {
 
   it should "parse and query div > p" in {
     HTMLParser.parse(sampleHTML).query("div > p") should be("from Indix.")
+  }
+
+  it should "parse and query body > div > p" in {
+    HTMLParser.parse(sampleHTML).query("body > div > p") should be("from Indix.")
   }
 
   it should "parse and query [id=content] > p" in {

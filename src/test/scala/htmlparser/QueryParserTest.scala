@@ -52,10 +52,9 @@ class QueryParserTest extends FlatSpec {
 
   it should "parse a multiple level parent child relation" in {
     val query = QueryParser.parse("div > p > p")
-    val parent = ParentChildRelation(parent = TagName("div"), child = TagName("p"))
     query should be(ParentChildRelation(
-      parent = parent,
-      child = TagName("p")
+      parent = TagName("div"),
+      child = ParentChildRelation(parent = TagName("p"), child = TagName("p"))
     ))
   }
 
