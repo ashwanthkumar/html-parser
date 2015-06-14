@@ -19,6 +19,17 @@ case class Node(name: String,
 
 case class DOM(nodes: List[Node]) {
   def text = nodes.map(_.text).mkString(" ").trim
+
+  def query(queryStr: String) = {
+    val query = QueryParser.parse(queryStr)
+    find(query)(None, nodes).map(_.text).mkString(" ").trim
+  }
+
+  final def find(query: Query)(parent: Option[Node], nodes: List[Node]): List[Node] = nodes match {
+    case Nil => Nil
+    case node :: rest if query.matches(parent, node) => List(node) ++ find(query)(Some(node), node.children ++ rest)
+    case node :: rest => find(query)(Some(node), node.children ++ rest)
+  }
 }
 
 object DOM {
