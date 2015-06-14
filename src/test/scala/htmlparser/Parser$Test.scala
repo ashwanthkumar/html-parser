@@ -25,7 +25,9 @@ class Parser$Test extends FlatSpec {
       """.stripMargin
 
     val node = Node("p", "Hello World!", Map(), Nil)
-    Parser.parse(html) should be(DOM(List(node)))
+    val document = Parser.parse(html)
+    document should be(DOM(List(node)))
+    document.text should be("Hello World!")
   }
 
   it should "parse 2 tags without children" in {
@@ -37,6 +39,8 @@ class Parser$Test extends FlatSpec {
 
     val node1 = Node("p", "Hello World!", Map(), Nil)
     val node2 = Node("span", "from Indix.", Map(), Nil)
-    Parser.parse(html) should be(DOM(List(node1, node2)))
+    val document = Parser.parse(html)
+    document should be(DOM(List(node1, node2)))
+    document.text should be("Hello World! from Indix.")
   }
 }

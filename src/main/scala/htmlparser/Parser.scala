@@ -6,6 +6,7 @@ import scala.util.parsing.combinator.RegexParsers
 object Parser {
 
   def parse(html: String): DOM = DOM(HTMLParser.parse(html))
+
 }
 
 object HTMLParser extends RegexParsers {

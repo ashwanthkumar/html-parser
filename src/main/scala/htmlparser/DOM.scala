@@ -1,7 +1,7 @@
 package htmlparser
 
 case class Node(name: String,
-                text: String,
+                innerText: String,
                 attributes: Map[String, String],
                 children: List[Node] = Nil) {
   def hasChildren = children.nonEmpty
@@ -9,8 +9,12 @@ case class Node(name: String,
   def id = attributes.get("id")
 
   def classes = attributes.get("class").map(_.split(","))
-  
-  def hasText = text != null && text.nonEmpty
+
+  def hasText = innerText != null && innerText.nonEmpty
+
+  def text: String = innerText + children.map(_.text).mkString(" ")
 }
 
-case class DOM(nodes: List[Node])
+case class DOM(nodes: List[Node]) {
+  def text = nodes.map(_.text).mkString(" ").trim
+}
