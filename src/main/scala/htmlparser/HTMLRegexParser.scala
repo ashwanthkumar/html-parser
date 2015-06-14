@@ -3,13 +3,13 @@ package htmlparser
 import scala.util.matching.Regex
 import scala.util.parsing.combinator.RegexParsers
 
-object Parser {
+object HTMLParser {
 
-  def parse(html: String): DOM = DOM(HTMLParser.parse(html))
+  def parse(html: String): DOM = DOM(HTMLRegexParser.parse(html))
 
 }
 
-object HTMLParser extends RegexParsers {
+object HTMLRegexParser extends RegexParsers {
 
   // Only skip new lines not white spaces
   override protected val whiteSpace: Regex = "\n".r
@@ -43,9 +43,9 @@ object HTMLParser extends RegexParsers {
 
   def DOCUMENT = (NESTED_TAG | SINGLE_TAG).+ ^^ { case nodes => nodes.flatten}
 
-  def NESTED_TAG: HTMLParser.Parser[List[Node]] = START ~ DOCUMENT.+ <~ CLOSE ^^ { case (tag, attributes) ~ children => List(Node(tag, "", attributes, children.flatten))}
+  def NESTED_TAG: HTMLRegexParser.Parser[List[Node]] = START ~ DOCUMENT.+ <~ CLOSE ^^ { case (tag, attributes) ~ children => List(Node(tag, "", attributes, children.flatten))}
 
-  def SINGLE_TAG: HTMLParser.Parser[List[Node]] = START ~ TEXT <~ CLOSE ^^ { case (tag, attributes) ~ text => List(Node(tag, text.mkString, attributes, Nil))}
+  def SINGLE_TAG: HTMLRegexParser.Parser[List[Node]] = START ~ TEXT <~ CLOSE ^^ { case (tag, attributes) ~ text => List(Node(tag, text.mkString, attributes, Nil))}
 
   def parse(html: String): List[Node] = parse(DOCUMENT, html) match {
     case Success(nodes, _) => nodes

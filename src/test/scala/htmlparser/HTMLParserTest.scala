@@ -3,7 +3,7 @@ package htmlparser
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers.{be, convertToAnyShouldWrapper}
 
-class ParserTest extends FlatSpec {
+class HTMLParserTest extends FlatSpec {
 
   val sampleHTML =
     """
@@ -25,7 +25,7 @@ class ParserTest extends FlatSpec {
       """.stripMargin
 
     val node = Node("p", "Hello World!", Map(), Nil)
-    val document = Parser.parse(html)
+    val document = HTMLParser.parse(html)
     document should be(DOM(node))
     document.text should be("Hello World!")
   }
@@ -36,7 +36,7 @@ class ParserTest extends FlatSpec {
         |<p class="para">Hello World!</p>
       """.stripMargin
     val node = Node("p", "Hello World!", Map("class" -> "para"), Nil)
-    val document = Parser.parse(html)
+    val document = HTMLParser.parse(html)
     document should be(DOM(node))
     document.text should be("Hello World!")
   }
@@ -50,7 +50,7 @@ class ParserTest extends FlatSpec {
 
     val node1 = Node("p", "Hello World!", Map(), Nil)
     val node2 = Node("span", "from Indix.", Map(), Nil)
-    val document = Parser.parse(html)
+    val document = HTMLParser.parse(html)
     document should be(DOM(node1, node2))
     document.text should be("Hello World! from Indix.")
   }
@@ -65,7 +65,7 @@ class ParserTest extends FlatSpec {
 
     val child = Node("p", "Hello World!", Map(), Nil)
     val parent = Node("div", "", Map(), List(child))
-    val document = Parser.parse(html)
+    val document = HTMLParser.parse(html)
     document should be(DOM(parent))
     document.text should be("Hello World!")
   }
@@ -82,13 +82,13 @@ class ParserTest extends FlatSpec {
     val child1 = Node("p", "Hello World!", Map(), Nil)
     val child2 = Node("span", "from Indix.", Map(), Nil)
     val parent = Node("div", "", Map(), List(child1, child2))
-    val document = Parser.parse(html)
+    val document = HTMLParser.parse(html)
     document should be(DOM(parent))
     document.text should be("Hello World! from Indix.")
   }
 
   it should "parse the sample html" in {
-    val document = Parser.parse(sampleHTML)
+    val document = HTMLParser.parse(sampleHTML)
     val title = Node("title", "First HTML Page", Map(), Nil)
     val head = Node("head", "", Map(), List(title))
 
