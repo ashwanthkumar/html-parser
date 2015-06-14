@@ -3,23 +3,31 @@ package htmlparser
 import scala.util.parsing.combinator.RegexParsers
 
 sealed trait Query {
-  def matches(node: Node): Boolean
+  def matches(parent: Option[Node], node: Node): Boolean
+
+  def matches(node: Node): Boolean = matches(None, node)
 
   def and(another: Query) = And(this, another)
 }
 
 case class TagName(target: String) extends Query {
-  def matches(node: Node): Boolean = node.name == target
+  def matches(parent: Option[Node], node: Node): Boolean = node.name == target
 }
 
 case class Attributes(attributes: Map[String, String]) extends Query {
-  def matches(node: Node): Boolean = attributes.forall {
+  def matches(parent: Option[Node], node: Node): Boolean = attributes.forall {
     case (key, value) => node.attributes.contains(key) && node.attributes(key) == value
   }
 }
 
+case class ParentChildRelation(parent: Query, child: Query) extends Query {
+  override def matches(parent: Option[Node], node: Node): Boolean = {
+    parent.exists(this.parent.matches) && child.matches(node)
+  }
+}
+
 private[htmlparser] case class And(left: Query, right: Query) extends Query {
-  def matches(node: Node): Boolean = left.matches(node) && right.matches(node)
+  def matches(parent: Option[Node], node: Node): Boolean = left.matches(parent, node) && right.matches(parent, node)
 }
 
 object QueryParser extends RegexParsers {
@@ -39,7 +47,11 @@ object QueryParser extends RegexParsers {
 
   def TAG_WITH_ATTRIBUTES = TAG_NAME ~ ATTRIBUTE ^^ { case tagName ~ attributes => tagName and attributes}
 
-  def QUERY: QueryParser.Parser[Query] = ATTRIBUTE | TAG_WITH_ATTRIBUTES | TAG_NAME
+  def RELATIONAL_QUERY = DIRECT_QUERY ~ literal(">") ~ DIRECT_QUERY ^^ { case parent ~ _ ~ child => ParentChildRelation(parent, child)}
+
+  def DIRECT_QUERY = ATTRIBUTE | TAG_WITH_ATTRIBUTES | TAG_NAME
+
+  def QUERY: QueryParser.Parser[Query] = RELATIONAL_QUERY | DIRECT_QUERY
 
   def parse(query: String): Query = parse(QUERY, query) match {
     case Success(result, _) => result
